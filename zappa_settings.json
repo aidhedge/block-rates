@@ -1,0 +1,18 @@
+{
+    "dev": {
+        "app_function": "y",
+        "aws_region": "eu-west-1",
+        "profile_name": "default",
+        "project_name": "block-rates",
+        "runtime": "python3.6",
+        "s3_bucket": "block-rates-dev"
+    },
+    "production": {
+        "app_function": "y",
+        "aws_region": "eu-west-1",
+        "profile_name": "default",
+        "project_name": "block-rates",
+        "runtime": "python3.6",
+        "s3_bucket": "block-rates-production"
+    }
+}
