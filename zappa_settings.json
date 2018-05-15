@@ -1,6 +1,6 @@
 {
     "dev": {
-        "app_function": "y",
+        "app_function": "app.app",
         "aws_region": "eu-west-1",
         "profile_name": "default",
         "project_name": "block-rates",
@@ -8,7 +8,7 @@
         "s3_bucket": "block-rates-dev"
     },
     "production": {
-        "app_function": "y",
+        "app_function": "app.app",
         "aws_region": "eu-west-1",
         "profile_name": "default",
         "project_name": "block-rates",

@@ -33,6 +33,7 @@ def today(d=None):
     else:
         return today.strftime('%Y-%m-%d')
 
+
 def queryCurrencyApi(pair, date):
     url = "http://www.apilayer.net/api/historical?access_key={}&source={}&currencies={}&date={}".format(CURRENCY_API_KEY, pair[:3], pair[3:],date)
     #LOG.console(url)
@@ -49,23 +50,34 @@ def rates(payload):
         pair = transaction['currency_from']+transaction['currency_to']
         transaction_start_date = transaction['start']
         transaction_end_date = transaction['end']
-        if transaction_end_date < today():
-            end_date = transaction_end_date
-        else:
-            end_date = today()
-        start_date = strToDate(end_date) - relativedelta(years=1)
-        url = "http://www.apilayer.net/api/timeframe?start_date={0}&end_date={1}&access_key={4}&source={2}&currencies={3}".format(start_date, end_date, pair[:3], pair[3:], CURRENCY_API_KEY)
-        res = ah_request.get(url=url)
-        res = res.json()
-        rates = []
-        dates = list(res['quotes'])
-        values = list(res['quotes'].values())
-        for x in range(len(dates)):
-            rates.append({'date':dates[x],'value':values[x][pair]})
 
-        obj.update(rates=rates, pair=pair)
-        obj.update(start_rate=queryCurrencyApi(pair=pair, date=transaction_start_date))
-        obj.update(end_rate=queryCurrencyApi(pair=pair, date=end_date))
+        if 'fixed_rate' in transaction:
+            obj.update(fixed_rate=transaction['fixed_rate'])
+            
+        rates = []
+
+        if transaction['start'] < today():
+            if transaction_end_date < today():
+                end_date = transaction_end_date
+            else:
+                end_date = today()
+            start_date = strToDate(end_date) - relativedelta(years=1)
+            url = "http://www.apilayer.net/api/timeframe?start_date={0}&end_date={1}&access_key={4}&source={2}&currencies={3}".format(start_date, end_date, pair[:3], pair[3:], CURRENCY_API_KEY)
+            res = ah_request.get(url=url)
+            res = res.json()
+            
+            dates = list(res['quotes'])
+            values = list(res['quotes'].values())
+            for x in range(len(dates)):
+                rates.append({'date':dates[x],'value':values[x][pair]})
+
+            obj.update(rates=rates, pair=pair)
+            obj.update(start_rate=queryCurrencyApi(pair=pair, date=transaction_start_date))
+            obj.update(end_rate=queryCurrencyApi(pair=pair, date=end_date))
+        else: # Om projectet inte har börjat
+            obj.update(rates=rates, pair=pair)
+            obj.update(start_rate=queryCurrencyApi(pair=pair, date=today()))
+            obj.update(end_rate=queryCurrencyApi(pair=pair, date=today()))
 
         result.append(obj)
     return result
